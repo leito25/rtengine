@@ -18,6 +18,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # Options
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
+option(RTENGINE_USE_PHYSX "Enable PhysX physics engine" ON)
 
 # ============================================================================
 # External Dependencies (Git Submodules)
@@ -35,6 +36,14 @@ add_subdirectory(external/glm)
 
 # GLAD - OpenGL Loader
 add_subdirectory(external/glad)
+
+# ============================================================================
+# PhysX Physics Engine (Optional)
+# ============================================================================
+
+if(RTENGINE_USE_PHYSX)
+    include(${CMAKE_SOURCE_DIR}/cmake/PhysX.cmake)
+endif()
 
 # ============================================================================
 # Main Application
@@ -69,6 +78,14 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     glad
     glm
 )
+
+# PhysX libraries (if enabled)
+if(RTENGINE_USE_PHYSX)
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        physx_interface
+    )
+    target_compile_definitions(${PROJECT_NAME} PRIVATE RTENGINE_HAS_PHYSX)
+endif()
 
 # Platform-specific libraries
 if(APPLE)

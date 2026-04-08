@@ -9,6 +9,7 @@ A modern OpenGL project template using CMake and Git submodules, inspired by [Op
 - GLFW for window management
 - GLM for mathematics
 - GLAD for OpenGL loading
+- **NVIDIA PhysX** for physics simulation (optional)
 - VS Code integration with debug/release tasks
 
 ## Requirements
@@ -24,15 +25,21 @@ A modern OpenGL project template using CMake and Git submodules, inspired by [Op
 rtengine/
 ├── CMakeLists.txt          # Main CMake configuration
 ├── .gitmodules             # Git submodule configuration
+├── cmake/                  # CMake modules
+│   └── PhysX.cmake         # PhysX integration
 ├── external/               # External dependencies (submodules)
 │   ├── glfw/               # GLFW library
 │   ├── glm/                # GLM mathematics library
-│   └── glad/               # GLAD OpenGL loader
+│   ├── glad/               # GLAD OpenGL loader
+│   └── PhysX/              # NVIDIA PhysX SDK
 ├── src/                    # Source files
 │   └── main.cpp            # Main application
 ├── shaders/                # GLSL shader files
 │   ├── vertex.glsl         # Vertex shader
 │   └── fragment.glsl       # Fragment shader
+├── scripts/                # Helper scripts
+│   ├── setup.sh            # Project setup
+│   └── build_physx.sh      # PhysX build script
 ├── assets/                 # Assets (textures, models, etc.)
 └── .vscode/                # VS Code configuration
     ├── tasks.json          # Build and run tasks
@@ -55,26 +62,7 @@ If you already cloned without `--recursive`:
 git submodule update --init --recursive
 ```
 
-### 2. Generate GLAD Files
-
-Before building, you need to generate GLAD files. Visit [GLAD Generator](https://glad.dav1d.de/) and:
-- Language: C/C++
-- Specification: OpenGL
-- Profile: Core
-- gl Version: 3.3 or higher
-- Generate a loader: Yes
-
-Download and extract:
-- `glad.h` → `external/glad/include/glad/`
-- `khrplatform.h` → `external/glad/include/KHR/`
-- `glad.c` → `external/glad/src/`
-
-Or use the provided script (if available):
-```bash
-./scripts/generate_glad.sh
-```
-
-### 3. Build the Project
+### 2. Build the Project
 
 #### Using VS Code Tasks (Recommended)
 
@@ -102,7 +90,13 @@ cmake --build build/Release -j8
 ./build/Release/bin/rtengine
 ```
 
-### 4. Debugging in VS Code
+**Build without PhysX:**
+```bash
+cmake -B build/Debug -S . -DCMAKE_BUILD_TYPE=Debug -DRTENGINE_USE_PHYSX=OFF
+cmake --build build/Debug -j8
+```
+
+### 3. Debugging in VS Code
 
 1. Install the **C/C++** extension or **CodeLLDB** extension
 2. Press `F5` or use the Debug panel
@@ -111,6 +105,43 @@ cmake --build build/Release -j8
    - **Debug (cppdbg - macOS)** - For macOS with Microsoft C/C++ extension
    - **Debug (cppdbg - Linux/GDB)** - For Linux
    - **Release (Run)** - Run release build
+
+## PhysX Integration
+
+This project includes NVIDIA PhysX 4.1 as an optional physics engine.
+
+### Building PhysX (Optional)
+
+PhysX requires separate compilation due to its complex build system:
+
+```bash
+# Using the provided script
+./scripts/build_physx.sh
+
+# Or manually
+cd external/PhysX/physx
+./generate_projects.sh mac  # or 'linux' on Linux
+cd compiler/mac64
+make -j8
+```
+
+### Using PhysX in Your Code
+
+When PhysX is enabled (`RTENGINE_USE_PHYSX=ON`), the preprocessor macro `RTENGINE_HAS_PHYSX` is defined:
+
+```cpp
+#ifdef RTENGINE_HAS_PHYSX
+#include <PxPhysicsAPI.h>
+// PhysX code here
+#endif
+```
+
+### Disabling PhysX
+
+To build without PhysX:
+```bash
+cmake -B build/Debug -S . -DCMAKE_BUILD_TYPE=Debug -DRTENGINE_USE_PHYSX=OFF
+```
 
 ## VS Code Tasks
 
@@ -124,8 +155,18 @@ cmake --build build/Release -j8
 | `Run Release` | Run the release build |
 | `Build and Run (Debug)` | Build and run in debug mode |
 | `Build and Run (Release)` | Build and run in release mode |
+| `Build PhysX` | Build PhysX libraries separately |
+| `Build without PhysX (Debug)` | Build without PhysX in debug mode |
+| `Build without PhysX (Release)` | Build without PhysX in release mode |
 | `Clean` | Remove build directory |
 | `Initialize Submodules` | Initialize git submodules |
+
+## CMake Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `BUILD_SHARED_LIBS` | OFF | Build shared libraries |
+| `RTENGINE_USE_PHYSX` | ON | Enable PhysX physics engine |
 
 ## Controls
 
@@ -136,6 +177,7 @@ cmake --build build/Release -j8
 - [GLFW](https://github.com/glfw/glfw) - Window and input handling
 - [GLM](https://github.com/g-truc/glm) - OpenGL Mathematics
 - [GLAD](https://glad.dav1d.de/) - OpenGL Loader Generator
+- [NVIDIA PhysX](https://github.com/NVIDIAGameWorks/PhysX) - Physics Engine (optional)
 
 ## License
 

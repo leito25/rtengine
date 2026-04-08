@@ -153,6 +153,68 @@
             },
             "group": "build",
             "problemMatcher": []
+        },
+        {
+            "label": "Build PhysX",
+            "type": "shell",
+            "command": "./scripts/build_physx.sh",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build without PhysX (Debug)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-B",
+                "build/Debug",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Debug",
+                "-DRTENGINE_USE_PHYSX=OFF",
+                "&&",
+                "cmake",
+                "--build",
+                "build/Debug",
+                "-j",
+                "8"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "Build without PhysX (Release)",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-B",
+                "build/Release",
+                "-S",
+                ".",
+                "-DCMAKE_BUILD_TYPE=Release",
+                "-DRTENGINE_USE_PHYSX=OFF",
+                "&&",
+                "cmake",
+                "--build",
+                "build/Release",
+                "-j",
+                "8"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": "build",
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }
